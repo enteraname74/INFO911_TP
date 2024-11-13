@@ -5,10 +5,19 @@
 #include <opencv2/imgproc.hpp>
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/highgui.hpp>
+#include <vector>
 #include "ColorDistribution.h"
+#include "opencv2/core/matx.hpp"
+#include "opencv2/core/types.hpp"
 
 using namespace cv;
 using namespace std;
+
+const int BB_BLOC = 128;
+const int RECO_BLOC = 8;
+const int WIDTH = 640;
+const int HEIGHT= 480;
+const int SIZE  = 50;
 
 ColorDistribution
 getColorDistribution( Mat input, Point pt1, Point pt2 )
@@ -22,7 +31,27 @@ getColorDistribution( Mat input, Point pt1, Point pt2 )
   return cd;
 }
 
-const int BB_BLOC = 128;
+Mat recoObject( Mat input,
+                const std::vector< ColorDistribution >& col_hists, /*< les distributions de couleurs du fond */
+                const std::vector< ColorDistribution >& col_hists_object, /*< les distributions de couleurs de l'objet */
+                const std::vector< Vec3b >& colors /*< les couleurs pour fond/objet */
+)
+{
+  for (int y = 0; y <= HEIGHT - RECO_BLOC; y += RECO_BLOC) {
+    for (int x = 0; x <= WIDTH - RECO_BLOC; x += RECO_BLOC) {
+      Point pt_start(x, y);
+      Point pt_end(x + RECO_BLOC, y + RECO_BLOC);
+      ColorDistribution h = getColorDistribution(input, pt_start, pt_end);
+
+      float min_distance_bg = h.minDistance(col_hists);
+      float min_distance_obj = h.minDistance(col_hists_object);
+
+
+    }
+  }
+
+  return Mat();
+}
 
 int main( int argc, char** argv )
 {
@@ -31,9 +60,7 @@ int main( int argc, char** argv )
   std::vector<ColorDistribution> col_hists_object; // histogrammes de l'objet
 
   VideoCapture* pCap = nullptr;
-  const int width = 640;
-  const int height= 480;
-  const int size  = 50;
+
   // Ouvre la camera
   pCap = new VideoCapture( 0 );
   if( ! pCap->isOpened() ) {
@@ -46,8 +73,8 @@ int main( int argc, char** argv )
   (*pCap) >> img_input;
   if( img_input.empty() ) return 1; // probleme avec la camera
 
-  Point pt1( width/2-size/2, height/2-size/2 );
-  Point pt2( width/2+size/2, height/2+size/2 );
+  Point pt1( WIDTH/2-SIZE/2, HEIGHT/2-SIZE/2 );
+  Point pt2( WIDTH/2+SIZE/2, HEIGHT/2+SIZE/2 );
 
   namedWindow( "input", 1 );
   imshow( "input", img_input );
@@ -62,10 +89,10 @@ int main( int argc, char** argv )
         break;
       if (c == 'v') {
         Point pt_left_start(0, 0);
-        Point pt_left_end(width / 2, height);
+        Point pt_left_end(WIDTH / 2, HEIGHT);
 
-        Point pt_right_start(width / 2, 0);
-        Point pt_right_end(width, height);
+        Point pt_right_start(WIDTH / 2, 0);
+        Point pt_right_end(WIDTH, HEIGHT);
 
         ColorDistribution cd_left = getColorDistribution(img_input, pt_left_start, pt_left_end);
         ColorDistribution cd_right = getColorDistribution(img_input, pt_right_start, pt_right_end);
@@ -77,8 +104,8 @@ int main( int argc, char** argv )
         // On ne garde pas les précédentes valeurs du tableau :
         col_hists.clear();
 
-        for (int y = 0; y <= height - BB_BLOC; y += BB_BLOC) {
-          for (int x = 0; x <= width - BB_BLOC; x += BB_BLOC) {
+        for (int y = 0; y <= HEIGHT - BB_BLOC; y += BB_BLOC) {
+          for (int x = 0; x <= WIDTH - BB_BLOC; x += BB_BLOC) {
             Point pt_start(x, y);
             Point pt_end(x + BB_BLOC, y + BB_BLOC);
             ColorDistribution background = getColorDistribution(img_input, pt_start, pt_end);
@@ -95,6 +122,17 @@ int main( int argc, char** argv )
       }
       if ( c == 'f' ) // permet de geler l'image
         freeze = ! freeze;
+
+      if ( c == 'r' ) {
+        if (col_hists.empty() || col_hists_object.empty()) {
+          continue;
+        }
+        vector<Vec3b> colors = {
+          Vec3b(0., 0., 0.),
+          Vec3b(0., 0., 255.)
+        };
+        Mat reco_output = recoObject(img_input, col_hists, col_hists_object, colors);
+      }
       cv::rectangle( img_input, pt1, pt2, Scalar( { 255.0, 255.0, 255.0 } ), 1 );
       imshow( "input", img_input ); // affiche le flux video
     }

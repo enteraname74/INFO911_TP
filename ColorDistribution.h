@@ -1,4 +1,5 @@
 #include <opencv2/highgui.hpp>
+#include <vector>
 
 struct ColorDistribution {
   float data[ 8 ][ 8 ][ 8 ]; // l'histogramme
@@ -17,6 +18,8 @@ struct ColorDistribution {
   void finished();
   // Retourne la distance entre cet histogramme et l'histogramme other
   float distance( const ColorDistribution& other ) const;
+
+  float minDistance(const std::vector<ColorDistribution>& hists);
 
   private:
     const int DATA_SIZE = 8;

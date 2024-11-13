@@ -1,5 +1,6 @@
 #include "ColorDistribution.h"
 #include <cmath>
+#include <iterator>
 
 using namespace std;
 
@@ -56,4 +57,18 @@ float ColorDistribution::distance(const ColorDistribution &other) const {
   }
 
   return total;
+}
+
+float ColorDistribution::minDistance(const std::vector<ColorDistribution>& hists) {
+  if (hists.empty()) return -1.;
+
+  float current_min = distance(hists[0]);
+  for (int i = 1; i < hists.size(); ++i) {
+    float current_distance = distance(hists[i]);
+    if (current_distance < current_min) {
+      current_min = current_distance;
+    }
+  }
+
+  return current_min;
 }
