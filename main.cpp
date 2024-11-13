@@ -22,9 +22,14 @@ getColorDistribution( Mat input, Point pt1, Point pt2 )
   return cd;
 }
 
+const int BB_BLOC = 128;
+
 int main( int argc, char** argv )
 {
   Mat img_input, img_seg, img_d_bgr, img_d_hsv, img_d_lab;
+  std::vector<ColorDistribution> col_hists; // histogrammes du fond
+  std::vector<ColorDistribution> col_hists_object; // histogrammes de l'objet
+
   VideoCapture* pCap = nullptr;
   const int width = 640;
   const int height= 480;
@@ -50,6 +55,7 @@ int main( int argc, char** argv )
   while ( true )
     {
       char c = (char)waitKey(50); // attend 50ms -> 20 images/s
+
       if ( pCap != nullptr && ! freeze )
         (*pCap) >> img_input;     // récupère l'image de la caméra
       if ( c == 27 || c == 'q' )  // permet de quitter l'application
@@ -66,6 +72,26 @@ int main( int argc, char** argv )
 
         float distance = cd_left.distance(cd_right);
         cout << "Distance: " << distance << endl;
+      }
+      if (c == 'b') {
+        // On ne garde pas les précédentes valeurs du tableau :
+        col_hists.clear();
+
+        for (int y = 0; y <= height - BB_BLOC; y += BB_BLOC) {
+          for (int x = 0; x <= width - BB_BLOC; x += BB_BLOC) {
+            Point pt_start(x, y);
+            Point pt_end(x + BB_BLOC, y + BB_BLOC);
+            ColorDistribution background = getColorDistribution(img_input, pt_start, pt_end);
+            col_hists.push_back(background);
+          }
+        }
+        int nb_hists_background = col_hists.size();
+        cout << "Size of background: " << nb_hists_background << endl;
+      }
+      if (c == 'a') {
+        // Histogramme de couleur de la partie contenu dans le rectangle blanc :
+        ColorDistribution white_rectangle_cd = getColorDistribution(img_input, pt1, pt2);
+        col_hists_object.push_back(white_rectangle_cd);
       }
       if ( c == 'f' ) // permet de geler l'image
         freeze = ! freeze;

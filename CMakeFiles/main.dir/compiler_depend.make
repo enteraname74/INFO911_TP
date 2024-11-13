@@ -157,7 +157,6 @@ CMakeFiles/main.dir/ColorDistribution.cpp.o: ColorDistribution.cpp \
   /usr/include/c++/14/bits/stl_tempbuf.h \
   /usr/include/c++/14/bits/stl_uninitialized.h \
   /usr/include/c++/14/bits/stl_vector.h \
-  /usr/include/c++/14/bits/stream_iterator.h \
   /usr/include/c++/14/bits/streambuf.tcc \
   /usr/include/c++/14/bits/streambuf_iterator.h \
   /usr/include/c++/14/bits/stringfwd.h \
@@ -198,9 +197,7 @@ CMakeFiles/main.dir/ColorDistribution.cpp.o: ColorDistribution.cpp \
   /usr/include/c++/14/initializer_list \
   /usr/include/c++/14/ios \
   /usr/include/c++/14/iosfwd \
-  /usr/include/c++/14/iostream \
   /usr/include/c++/14/istream \
-  /usr/include/c++/14/iterator \
   /usr/include/c++/14/limits \
   /usr/include/c++/14/memory \
   /usr/include/c++/14/mutex \
@@ -594,7 +591,11 @@ CMakeFiles/main.dir/main.cpp.o: main.cpp \
   /usr/lib/gcc/x86_64-redhat-linux/14/include/xmmintrin.h
 
 
+/usr/include/opencv4/opencv2/imgproc/segmentation.hpp:
+
 /usr/include/opencv4/opencv2/imgproc.hpp:
+
+/usr/include/c++/14/iostream:
 
 /usr/lib/gcc/x86_64-redhat-linux/14/include/stddef.h:
 
@@ -633,10 +634,6 @@ CMakeFiles/main.dir/main.cpp.o: main.cpp \
 /usr/include/opencv4/opencv2/core/traits.hpp:
 
 /usr/include/opencv4/opencv2/core/saturate.hpp:
-
-/usr/include/opencv4/opencv2/core/persistence.hpp:
-
-/usr/include/opencv4/opencv2/core/optim.hpp:
 
 /usr/include/c++/14/bits/memoryfwd.h:
 
@@ -749,6 +746,8 @@ CMakeFiles/main.dir/main.cpp.o: main.cpp \
 /usr/include/c++/14/bits/stl_iterator_base_types.h:
 
 /usr/include/bits/errno.h:
+
+/usr/include/opencv4/opencv2/core/persistence.hpp:
 
 /usr/include/bits/locale.h:
 
@@ -978,8 +977,6 @@ ColorDistribution.h:
 
 /usr/include/c++/14/bits/requires_hosted.h:
 
-/usr/include/c++/14/iostream:
-
 /usr/include/c++/14/bits/shared_ptr.h:
 
 /usr/include/opencv4/opencv2/core/cv_cpu_dispatch.h:
@@ -1034,15 +1031,9 @@ ColorDistribution.h:
 
 /usr/include/c++/14/bits/stl_uninitialized.h:
 
-/usr/include/opencv4/opencv2/imgproc/segmentation.hpp:
-
-/usr/include/c++/14/bits/stream_iterator.h:
-
 /usr/include/c++/14/bits/stringfwd.h:
 
 /usr/include/gnu/stubs-64.h:
-
-/usr/include/c++/14/iterator:
 
 /usr/include/c++/14/bits/unique_ptr.h:
 
@@ -1071,14 +1062,6 @@ ColorDistribution.cpp:
 /usr/include/bits/endian.h:
 
 /usr/include/opencv4/opencv2/core/base.hpp:
-
-/usr/include/opencv4/opencv2/core/ovx.hpp:
-
-/usr/include/c++/14/ostream:
-
-/usr/include/c++/14/bits/parse_numbers.h:
-
-/usr/include/c++/14/compare:
 
 /usr/include/c++/14/cstdint:
 
@@ -1186,6 +1169,16 @@ ColorDistribution.cpp:
 
 /usr/include/opencv4/opencv2/core/mat.hpp:
 
+/usr/include/c++/14/ostream:
+
+/usr/include/c++/14/bits/parse_numbers.h:
+
+/usr/include/c++/14/compare:
+
+/usr/include/opencv4/opencv2/core/ovx.hpp:
+
 /usr/include/opencv4/opencv2/core/mat.inl.hpp:
 
 /usr/include/opencv4/opencv2/core/operations.hpp:
+
+/usr/include/opencv4/opencv2/core/optim.hpp:

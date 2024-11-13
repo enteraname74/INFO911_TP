@@ -210,5 +210,4 @@ CMakeFiles/main.dir/ColorDistribution.cpp.o: \
  /usr/include/opencv4/opencv2/core/ovx.hpp \
  /usr/include/opencv4/opencv2/core/cvdef.h \
  /usr/include/opencv4/opencv2/imgcodecs.hpp \
- /usr/include/opencv4/opencv2/videoio.hpp /usr/include/c++/14/iostream \
- /usr/include/c++/14/iterator /usr/include/c++/14/bits/stream_iterator.h
+ /usr/include/opencv4/opencv2/videoio.hpp
