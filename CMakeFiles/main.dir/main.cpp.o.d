@@ -209,4 +209,5 @@ CMakeFiles/main.dir/main.cpp.o: \
  /usr/include/opencv4/opencv2/imgproc/segmentation.hpp \
  /usr/include/opencv4/opencv2/imgcodecs.hpp \
  /usr/include/opencv4/opencv2/highgui.hpp \
- /usr/include/opencv4/opencv2/videoio.hpp
+ /usr/include/opencv4/opencv2/videoio.hpp \
+ /home/noah/Documents/M2/INFO911/INFO911_TP/ColorDistribution.h

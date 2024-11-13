@@ -15,8 +15,9 @@ getColorDistribution( Mat input, Point pt1, Point pt2 )
 {
   ColorDistribution cd;
   for ( int y = pt1.y; y < pt2.y; y++ )
-    for ( int x = pt1.x; x < pt2.x; x++ )
+    for ( int x = pt1.x; x < pt2.x; x++ ) {
       cd.add( input.at<Vec3b>( y, x ) );
+    }
   cd.finished();
   return cd;
 }
@@ -39,8 +40,10 @@ int main( int argc, char** argv )
   pCap->set( CAP_PROP_FRAME_HEIGHT, 480 );
   (*pCap) >> img_input;
   if( img_input.empty() ) return 1; // probleme avec la camera
+
   Point pt1( width/2-size/2, height/2-size/2 );
   Point pt2( width/2+size/2, height/2+size/2 );
+
   namedWindow( "input", 1 );
   imshow( "input", img_input );
   bool freeze = false;
@@ -52,8 +55,17 @@ int main( int argc, char** argv )
       if ( c == 27 || c == 'q' )  // permet de quitter l'application
         break;
       if (c == 'v') {
-        cout << "Amogus baka" << endl;
+        Point pt_left_start(0, 0);
+        Point pt_left_end(width / 2, height);
 
+        Point pt_right_start(width / 2, 0);
+        Point pt_right_end(width, height);
+
+        ColorDistribution cd_left = getColorDistribution(img_input, pt_left_start, pt_left_end);
+        ColorDistribution cd_right = getColorDistribution(img_input, pt_right_start, pt_right_end);
+
+        float distance = cd_left.distance(cd_right);
+        cout << "Distance: " << distance << endl;
       }
       if ( c == 'f' ) // permet de geler l'image
         freeze = ! freeze;

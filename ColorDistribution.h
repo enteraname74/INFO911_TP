@@ -18,8 +18,6 @@ struct ColorDistribution {
   // Retourne la distance entre cet histogramme et l'histogramme other
   float distance( const ColorDistribution& other ) const;
 
-  float normalize(int i, int j, int k) const;
-
   private:
     const int DATA_SIZE = 8;
 };
