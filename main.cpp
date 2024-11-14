@@ -24,32 +24,22 @@ const int OBJECTS_START_COL = 1;
 const char KEY_UP = 'R';
 const char KEY_DOWN = 'T';
 
-// Function to increase the saturation and luminosity of a color in Vec3b format
-Vec3b increaseSaturationAndLuminosity(const Vec3b& colorBGR, double saturationScale, double luminosityScale) {
-    // Convert the input BGR color to a 1x1 Mat
+Vec3b adaptObjectColorForDisplay(const Vec3b& colorBGR, double saturationScale, double luminosityScale) {
     Mat bgrMat(1, 1, CV_8UC3, Scalar(colorBGR[0], colorBGR[1], colorBGR[2]));
 
-    // Convert BGR to HSV
     Mat hsvMat;
     cvtColor(bgrMat, hsvMat, COLOR_BGR2HSV);
 
-    // Access the HSV color
     Vec3b hsvColor = hsvMat.at<Vec3b>(0, 0);
 
-    // Scale the Saturation (S) channel
-    hsvColor[1] = saturate_cast<uchar>(hsvColor[1] * saturationScale); // Increase saturation
+    hsvColor[1] = saturate_cast<uchar>(hsvColor[1] * saturationScale);
+    hsvColor[2] = saturate_cast<uchar>(hsvColor[2] * luminosityScale);
 
-    // Scale the Value (V) channel (for luminosity/brightness)
-    hsvColor[2] = saturate_cast<uchar>(hsvColor[2] * luminosityScale); // Increase brightness
-
-    // Update the HSV color in the Mat
     hsvMat.at<Vec3b>(0, 0) = hsvColor;
 
-    // Convert back to BGR color space
     Mat resultBGR;
     cvtColor(hsvMat, resultBGR, COLOR_HSV2BGR);
 
-    // Return the new color in BGR format
     return resultBGR.at<Vec3b>(0, 0);
 }
 
@@ -82,7 +72,6 @@ Mat recoObject(
 
       Vec3b color_obj = all_col_hists[OBJECTS_START_COL].color;
 
-      // cout << "Size: " << all_col_hists.size() << endl;
       for (int i = OBJECTS_START_COL; i < all_col_hists.size(); ++i) {
         RecoData current_reco_data = all_col_hists[i];
 
@@ -95,15 +84,13 @@ Mat recoObject(
 
       Vec3b color_bloc;
       if (min_distance_obj < min_distance_bg) {
-        // cout << "Color: " << color_obj << " saturated : " << increaseSaturation(color_obj, 10.5);
-        color_bloc = increaseSaturationAndLuminosity(color_obj, 10.5, 10.);
+        color_bloc = adaptObjectColorForDisplay(color_obj, 10.5, 10.);
       } else {
         color_bloc = colors[0];
       }
 
       for (int i = x; i < x + RECO_BLOC; i++) {
         for (int j = y; j < y + RECO_BLOC; j++) {
-          // cout << "Will use color: " << color_bloc << " at index (" << i << ", " << j << ")" << endl;
           output.at<Vec3b>(j, i) = color_bloc;
         }
       }

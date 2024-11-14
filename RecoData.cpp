@@ -33,17 +33,10 @@ void RecoData::set_color()
   for (int i = 0; i < color_distributions.size(); ++i) {
     Vec3b most_used_color = color_distributions[i].most_used_color();
 
-    std::cout << "MOST USED: " << most_used_color << endl;
-
     r += most_used_color[2];
     g += most_used_color[1];
     b += most_used_color[0];
   }
 
-  std::cout << "R: "<< r << " G: " << g << " B: " << b << endl;
-  std::cout << "R: "<< r / total << " G: " << g / total << " B: " << b / total << endl;
-
   color = Vec3b( b / total, g / total, r / total );
-
-  cout << "COLOR: " << color << endl;
 }
