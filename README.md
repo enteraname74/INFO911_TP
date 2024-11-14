@@ -35,8 +35,8 @@ Quelques photos :
 
 Mode normal :
 
-[mode normal](normal.png)
+<img src="normal.png" alt="mode normal"/>
 
 Mode reconnaissance avec deux objets
 
-[mode reconnaissance](reco.png)
+<img src="reco.png" alt="mode reconnaissance"/>
