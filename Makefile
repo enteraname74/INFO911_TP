@@ -153,6 +153,30 @@ ColorDistribution.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/ColorDistribution.cpp.s
 .PHONY : ColorDistribution.cpp.s
 
+RecoData.o: RecoData.cpp.o
+.PHONY : RecoData.o
+
+# target to build an object file
+RecoData.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/RecoData.cpp.o
+.PHONY : RecoData.cpp.o
+
+RecoData.i: RecoData.cpp.i
+.PHONY : RecoData.i
+
+# target to preprocess a source file
+RecoData.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/RecoData.cpp.i
+.PHONY : RecoData.cpp.i
+
+RecoData.s: RecoData.cpp.s
+.PHONY : RecoData.s
+
+# target to generate assembly for a file
+RecoData.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/main.dir/build.make CMakeFiles/main.dir/RecoData.cpp.s
+.PHONY : RecoData.cpp.s
+
 main.o: main.cpp.o
 .PHONY : main.o
 
@@ -189,6 +213,9 @@ help:
 	@echo "... ColorDistribution.o"
 	@echo "... ColorDistribution.i"
 	@echo "... ColorDistribution.s"
+	@echo "... RecoData.o"
+	@echo "... RecoData.i"
+	@echo "... RecoData.s"
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"

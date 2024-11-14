@@ -9,6 +9,7 @@ set(CMAKE_DEPENDS_LANGUAGES
 # The set of dependency files which are needed:
 set(CMAKE_DEPENDS_DEPENDENCY_FILES
   "/home/noah/Documents/M2/INFO911/INFO911_TP/ColorDistribution.cpp" "CMakeFiles/main.dir/ColorDistribution.cpp.o" "gcc" "CMakeFiles/main.dir/ColorDistribution.cpp.o.d"
+  "/home/noah/Documents/M2/INFO911/INFO911_TP/RecoData.cpp" "CMakeFiles/main.dir/RecoData.cpp.o" "gcc" "CMakeFiles/main.dir/RecoData.cpp.o.d"
   "/home/noah/Documents/M2/INFO911/INFO911_TP/main.cpp" "CMakeFiles/main.dir/main.cpp.o" "gcc" "CMakeFiles/main.dir/main.cpp.o.d"
   )
 

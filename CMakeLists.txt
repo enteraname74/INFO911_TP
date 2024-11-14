@@ -9,5 +9,12 @@ SET( MAIN_EXEC
      ColorDistribution
      )
 
-add_executable( main main.cpp ColorDistribution.h ColorDistribution.cpp )
+add_executable(
+  main
+  main.cpp
+  ColorDistribution.h
+  ColorDistribution.cpp
+  RecoData.h
+  RecoData.cpp
+  )
 target_link_libraries( main ${OpenCV_LIBS} )

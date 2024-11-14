@@ -1,5 +1,7 @@
 #include "ColorDistribution.h"
+#include "opencv2/core/matx.hpp"
 #include <cmath>
+#include <iostream>
 
 using namespace std;
 
@@ -44,7 +46,6 @@ float ColorDistribution::distance(const ColorDistribution &other) const {
   for (int i = 0; i < DATA_SIZE; ++i) {
     for (int j = 0; j < DATA_SIZE; ++j) {
       for (int k = 0; k < DATA_SIZE; ++k) {
-
         float denominator = data[i][j][k] + other.data[i][j][k];
 
         if (denominator > 0) {
@@ -58,7 +59,7 @@ float ColorDistribution::distance(const ColorDistribution &other) const {
   return total;
 }
 
-float ColorDistribution::minDistance(const std::vector<ColorDistribution>& hists) {
+float ColorDistribution::min_distance(const std::vector<ColorDistribution>& hists) {
   if (hists.empty()) return -1.;
 
   float current_min = distance(hists[0]);
@@ -70,4 +71,29 @@ float ColorDistribution::minDistance(const std::vector<ColorDistribution>& hists
   }
 
   return current_min;
+}
+
+Vec3b ColorDistribution::most_used_color() {
+  int r = 0;
+  int g = 0;
+  int b = 0;
+
+  float max = 0;
+
+  for (int i = 0; i < DATA_SIZE; ++i) {
+    for (int j = 0; j < DATA_SIZE; ++j) {
+      for (int k = 0; k < DATA_SIZE; ++k) {
+        float current_max = data[i][j][k];
+
+        if (current_max > max) {
+          max = current_max;
+          r = i;
+          g = j;
+          b = k;
+        }
+      }
+    }
+  }
+
+  return Vec3b(b * 8, g * 8, r * 8);
 }

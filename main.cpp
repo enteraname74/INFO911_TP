@@ -1,8 +1,7 @@
-#include "ColorDistribution.h"
+#include "RecoData.h"
 #include "opencv2/core/matx.hpp"
 #include "opencv2/core/types.hpp"
 #include <cstdio>
-#include <exception>
 #include <iostream>
 #include <opencv2/core/utility.hpp>
 #include <opencv2/highgui.hpp>
@@ -25,6 +24,35 @@ const int OBJECTS_START_COL = 1;
 const char KEY_UP = 'R';
 const char KEY_DOWN = 'T';
 
+// Function to increase the saturation and luminosity of a color in Vec3b format
+Vec3b increaseSaturationAndLuminosity(const Vec3b& colorBGR, double saturationScale, double luminosityScale) {
+    // Convert the input BGR color to a 1x1 Mat
+    Mat bgrMat(1, 1, CV_8UC3, Scalar(colorBGR[0], colorBGR[1], colorBGR[2]));
+
+    // Convert BGR to HSV
+    Mat hsvMat;
+    cvtColor(bgrMat, hsvMat, COLOR_BGR2HSV);
+
+    // Access the HSV color
+    Vec3b hsvColor = hsvMat.at<Vec3b>(0, 0);
+
+    // Scale the Saturation (S) channel
+    hsvColor[1] = saturate_cast<uchar>(hsvColor[1] * saturationScale); // Increase saturation
+
+    // Scale the Value (V) channel (for luminosity/brightness)
+    hsvColor[2] = saturate_cast<uchar>(hsvColor[2] * luminosityScale); // Increase brightness
+
+    // Update the HSV color in the Mat
+    hsvMat.at<Vec3b>(0, 0) = hsvColor;
+
+    // Convert back to BGR color space
+    Mat resultBGR;
+    cvtColor(hsvMat, resultBGR, COLOR_HSV2BGR);
+
+    // Return the new color in BGR format
+    return resultBGR.at<Vec3b>(0, 0);
+}
+
 ColorDistribution getColorDistribution(Mat input, Point pt1, Point pt2) {
   ColorDistribution cd;
   for (int y = pt1.y; y < pt2.y; y++)
@@ -37,8 +65,8 @@ ColorDistribution getColorDistribution(Mat input, Point pt1, Point pt2) {
 
 Mat recoObject(
     Mat input,
-    const std::vector< std::vector< ColorDistribution > >& all_col_hists,
-    const std::vector<Vec3b> &colors /*< les couleurs pour fond/objet */
+    const std::vector< RecoData >& all_col_hists,
+    const std::vector<Vec3b> &colors
 ) {
   Mat output;
   input.copyTo(output);
@@ -49,22 +77,26 @@ Mat recoObject(
       Point pt_end(x + RECO_BLOC, y + RECO_BLOC);
       ColorDistribution h = getColorDistribution(input, pt_start, pt_end);
 
-      float min_distance_bg = h.minDistance(all_col_hists[BACKGROUND_COL]);
-      float min_distance_obj = h.minDistance(all_col_hists[OBJECTS_START_COL]);
+      float min_distance_bg = h.min_distance(all_col_hists[BACKGROUND_COL].color_distributions);
+      float min_distance_obj = h.min_distance(all_col_hists[OBJECTS_START_COL].color_distributions);
 
-      Vec3b color_obj = colors[1];
+      Vec3b color_obj = all_col_hists[OBJECTS_START_COL].color;
 
+      // cout << "Size: " << all_col_hists.size() << endl;
       for (int i = OBJECTS_START_COL; i < all_col_hists.size(); ++i) {
-        float tmp_distance_obj = h.minDistance(all_col_hists[i]);
+        RecoData current_reco_data = all_col_hists[i];
+
+        float tmp_distance_obj = h.min_distance(current_reco_data.color_distributions);
         if (tmp_distance_obj < min_distance_obj) {
           min_distance_obj = tmp_distance_obj;
-          color_obj = colors[i];
+          color_obj = current_reco_data.color;
         }
       }
 
       Vec3b color_bloc;
       if (min_distance_obj < min_distance_bg) {
-        color_bloc = color_obj;
+        // cout << "Color: " << color_obj << " saturated : " << increaseSaturation(color_obj, 10.5);
+        color_bloc = increaseSaturationAndLuminosity(color_obj, 10.5, 10.);
       } else {
         color_bloc = colors[0];
       }
@@ -84,7 +116,7 @@ Mat recoObject(
 int main(int argc, char **argv) {
   Mat img_input, img_seg, img_d_bgr, img_d_hsv, img_d_lab;
 
-  std::vector<std::vector< ColorDistribution >> all_col_hists = {{}};
+  std::vector<RecoData> all_col_hists = {RecoData()};
   int current_object_col = OBJECTS_START_COL;
 
   VideoCapture *pCap = nullptr;
@@ -142,10 +174,9 @@ int main(int argc, char **argv) {
     }
     if (c == 'b') {
       // On ne garde pas les précédentes valeurs du tableau :
-      if (!all_col_hists[BACKGROUND_COL].empty()) {
+      if (!all_col_hists[BACKGROUND_COL].is_empty()) {
         all_col_hists[BACKGROUND_COL].clear();
       }
-      cout << "AMOGUS BAKA" << endl;
 
       for (int y = 0; y <= HEIGHT - BB_BLOC; y += BB_BLOC) {
         for (int x = 0; x <= WIDTH - BB_BLOC; x += BB_BLOC) {
@@ -153,10 +184,10 @@ int main(int argc, char **argv) {
           Point pt_end(x + BB_BLOC, y + BB_BLOC);
           ColorDistribution background =
               getColorDistribution(img_input, pt_start, pt_end);
-          all_col_hists[BACKGROUND_COL].push_back(background);
+          all_col_hists[BACKGROUND_COL].add_cd(background);
         }
       }
-      int nb_hists_background = all_col_hists[BACKGROUND_COL].size();
+      int nb_hists_background = all_col_hists[BACKGROUND_COL].size_cbs();
       cout << "Size of background: " << nb_hists_background << endl;
     }
     if (c == 'a') {
@@ -165,18 +196,22 @@ int main(int argc, char **argv) {
           getColorDistribution(img_input, pt1, pt2);
 
       if (current_object_col >= all_col_hists.size()) {
-        all_col_hists.push_back({white_rectangle_cd});
+        RecoData object_data = RecoData();
+        object_data.add_cd(white_rectangle_cd);
+        all_col_hists.push_back(object_data);
       } else {
-        all_col_hists[current_object_col].push_back(white_rectangle_cd);
+        all_col_hists[current_object_col].add_cd(white_rectangle_cd);
       }
 
-      cout << "Got histogram of white rectangle. Size of list: " << all_col_hists[current_object_col].size() << endl;
+      cout << "Got histogram of white rectangle. Size of list: " << all_col_hists[current_object_col].size_cbs() << endl;
+      cout << "Most used color in white rectangle: " << white_rectangle_cd.most_used_color() << endl;
     }
     if (c == 'f') // permet de geler l'image
       freeze = !freeze;
 
     if (c == 'r') {
-      if (all_col_hists.empty()) {
+      // On ne rentre pas dans le mode reco si on a pas au moins un fond et un objet.
+      if (all_col_hists.size() < 2) {
         continue;
       }
 

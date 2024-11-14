@@ -1,6 +1,8 @@
 #include <opencv2/highgui.hpp>
 #include <vector>
 
+using namespace cv;
+
 struct ColorDistribution {
   float data[ 8 ][ 8 ][ 8 ]; // l'histogramme
   int nb;                     // le nombre d'échantillons
@@ -19,7 +21,10 @@ struct ColorDistribution {
   // Retourne la distance entre cet histogramme et l'histogramme other
   float distance( const ColorDistribution& other ) const;
 
-  float minDistance(const std::vector<ColorDistribution>& hists);
+  float min_distance(const std::vector<ColorDistribution>& hists);
+
+  // Récupère la couleur qui apprait le plus souvent.
+  Vec3b most_used_color();
 
   private:
     const int DATA_SIZE = 8;

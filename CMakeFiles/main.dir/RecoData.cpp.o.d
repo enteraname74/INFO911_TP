@@ -1,5 +1,5 @@
-CMakeFiles/main.dir/main.cpp.o: \
- /home/noah/Documents/M2/INFO911/INFO911_TP/main.cpp \
+CMakeFiles/main.dir/RecoData.cpp.o: \
+ /home/noah/Documents/M2/INFO911/INFO911_TP/RecoData.cpp \
  /usr/include/stdc-predef.h \
  /home/noah/Documents/M2/INFO911/INFO911_TP/RecoData.h \
  /home/noah/Documents/M2/INFO911/INFO911_TP/ColorDistribution.h \
@@ -211,6 +211,4 @@ CMakeFiles/main.dir/main.cpp.o: \
  /usr/include/opencv4/opencv2/core/ovx.hpp \
  /usr/include/opencv4/opencv2/core/cvdef.h \
  /usr/include/opencv4/opencv2/imgcodecs.hpp \
- /usr/include/opencv4/opencv2/videoio.hpp /usr/include/c++/14/iostream \
- /usr/include/opencv4/opencv2/imgproc.hpp \
- /usr/include/opencv4/opencv2/imgproc/segmentation.hpp
+ /usr/include/opencv4/opencv2/videoio.hpp /usr/include/c++/14/iostream
