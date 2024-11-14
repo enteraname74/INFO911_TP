@@ -1,6 +1,5 @@
 #include "ColorDistribution.h"
 #include <cmath>
-#include <iterator>
 
 using namespace std;
 
