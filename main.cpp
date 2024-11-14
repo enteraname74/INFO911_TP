@@ -72,6 +72,7 @@ Mat recoObject(
 
       Vec3b color_obj = all_col_hists[OBJECTS_START_COL].color;
 
+      // Recherche de l'objet le plus proche du bloc dans la partie de la liste couvrant tous nos objets identifiés
       for (int i = OBJECTS_START_COL; i < all_col_hists.size(); ++i) {
         RecoData current_reco_data = all_col_hists[i];
 
@@ -84,6 +85,7 @@ Mat recoObject(
 
       Vec3b color_bloc;
       if (min_distance_obj < min_distance_bg) {
+        // On adapte la couleur de l'objet pour qu'elle soit toujours bien visible.
         color_bloc = adaptObjectColorForDisplay(color_obj, 10.5, 10.);
       } else {
         color_bloc = colors[0];
