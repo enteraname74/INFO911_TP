@@ -2,6 +2,7 @@
 #include "opencv2/core/matx.hpp"
 #include "opencv2/core/types.hpp"
 #include <cstdio>
+#include <exception>
 #include <iostream>
 #include <opencv2/core/utility.hpp>
 #include <opencv2/highgui.hpp>
@@ -17,6 +18,12 @@ const int RECO_BLOC = 8;
 const int WIDTH = 640;
 const int HEIGHT = 480;
 const int SIZE = 50;
+const int BACKGROUND_COL = 0;
+const int OBJECTS_START_COL = 1;
+
+// Pour basculer d'un objet à l'autre (afin de l'éditer)
+const char KEY_UP = 'R';
+const char KEY_DOWN = 'T';
 
 ColorDistribution getColorDistribution(Mat input, Point pt1, Point pt2) {
   ColorDistribution cd;
@@ -30,10 +37,7 @@ ColorDistribution getColorDistribution(Mat input, Point pt1, Point pt2) {
 
 Mat recoObject(
     Mat input,
-    const std::vector<ColorDistribution>
-        &col_hists, /*< les distributions de couleurs du fond */
-    const std::vector<ColorDistribution>
-        &col_hists_object, /*< les distributions de couleurs de l'objet */
+    const std::vector< std::vector< ColorDistribution > >& all_col_hists,
     const std::vector<Vec3b> &colors /*< les couleurs pour fond/objet */
 ) {
   Mat output;
@@ -45,12 +49,22 @@ Mat recoObject(
       Point pt_end(x + RECO_BLOC, y + RECO_BLOC);
       ColorDistribution h = getColorDistribution(input, pt_start, pt_end);
 
-      float min_distance_bg = h.minDistance(col_hists);
-      float min_distance_obj = h.minDistance(col_hists_object);
+      float min_distance_bg = h.minDistance(all_col_hists[BACKGROUND_COL]);
+      float min_distance_obj = h.minDistance(all_col_hists[OBJECTS_START_COL]);
+
+      Vec3b color_obj = colors[1];
+
+      for (int i = OBJECTS_START_COL; i < all_col_hists.size(); ++i) {
+        float tmp_distance_obj = h.minDistance(all_col_hists[i]);
+        if (tmp_distance_obj < min_distance_obj) {
+          min_distance_obj = tmp_distance_obj;
+          color_obj = colors[i];
+        }
+      }
 
       Vec3b color_bloc;
       if (min_distance_obj < min_distance_bg) {
-        color_bloc = colors[1];
+        color_bloc = color_obj;
       } else {
         color_bloc = colors[0];
       }
@@ -69,8 +83,9 @@ Mat recoObject(
 
 int main(int argc, char **argv) {
   Mat img_input, img_seg, img_d_bgr, img_d_hsv, img_d_lab;
-  std::vector<ColorDistribution> col_hists;        // histogrammes du fond
-  std::vector<ColorDistribution> col_hists_object; // histogrammes de l'objet
+
+  std::vector<std::vector< ColorDistribution >> all_col_hists = {{}};
+  int current_object_col = OBJECTS_START_COL;
 
   VideoCapture *pCap = nullptr;
 
@@ -96,7 +111,11 @@ int main(int argc, char **argv) {
   bool freeze = false;
   bool reco = false;
 
-  vector<Vec3b> colors = {Vec3b(0., 0., 0.), Vec3b(0., 0., 255.)};
+  vector<Vec3b> colors = {
+    Vec3b(0., 0., 0.),
+    Vec3b(0., 0., 255.),
+    Vec3b(255., 0., 0.),
+  };
 
   Mat output = img_input;
   while (true) {
@@ -123,7 +142,10 @@ int main(int argc, char **argv) {
     }
     if (c == 'b') {
       // On ne garde pas les précédentes valeurs du tableau :
-      col_hists.clear();
+      if (!all_col_hists[BACKGROUND_COL].empty()) {
+        all_col_hists[BACKGROUND_COL].clear();
+      }
+      cout << "AMOGUS BAKA" << endl;
 
       for (int y = 0; y <= HEIGHT - BB_BLOC; y += BB_BLOC) {
         for (int x = 0; x <= WIDTH - BB_BLOC; x += BB_BLOC) {
@@ -131,33 +153,37 @@ int main(int argc, char **argv) {
           Point pt_end(x + BB_BLOC, y + BB_BLOC);
           ColorDistribution background =
               getColorDistribution(img_input, pt_start, pt_end);
-          col_hists.push_back(background);
+          all_col_hists[BACKGROUND_COL].push_back(background);
         }
       }
-      int nb_hists_background = col_hists.size();
+      int nb_hists_background = all_col_hists[BACKGROUND_COL].size();
       cout << "Size of background: " << nb_hists_background << endl;
     }
     if (c == 'a') {
-      // Histogramme de couleur de la partie contenu dans le rectangle blanc :
+      // Histogramme de couleur de la partie contenu dans le rectangle blanc, à l'index choisi par l'utilisateur :
       ColorDistribution white_rectangle_cd =
           getColorDistribution(img_input, pt1, pt2);
-      col_hists_object.push_back(white_rectangle_cd);
 
-      cout << "Got histogram of white rectangle. Size of list: " << col_hists_object.size() << endl;
+      if (current_object_col >= all_col_hists.size()) {
+        all_col_hists.push_back({white_rectangle_cd});
+      } else {
+        all_col_hists[current_object_col].push_back(white_rectangle_cd);
+      }
+
+      cout << "Got histogram of white rectangle. Size of list: " << all_col_hists[current_object_col].size() << endl;
     }
     if (c == 'f') // permet de geler l'image
       freeze = !freeze;
 
     if (c == 'r') {
-      if (col_hists.empty() || col_hists_object.empty()) {
+      if (all_col_hists.empty()) {
         continue;
       }
 
       if (reco) {
         // On reset toutes nos informations si on est déjà en mode reco.
         reco = false;
-        col_hists.clear();
-        col_hists_object.clear();
+        all_col_hists.clear();
         cout << "Reco mode deactivated" << endl;
       } else {
         reco = true;
@@ -165,12 +191,23 @@ int main(int argc, char **argv) {
       }
     }
 
+    if (c == KEY_UP) {
+      if (current_object_col > OBJECTS_START_COL) {
+        current_object_col -= 1;
+      }
+      cout << "Current object index is: " << current_object_col << endl;
+    }
+    if (c == KEY_DOWN) {
+      current_object_col += 1;
+      cout << "Current object index is: " << current_object_col << endl;
+    }
+
     if (reco) {
       // Mode reconnaissance
       Mat gray;
       cvtColor(img_input, gray, COLOR_BGR2GRAY);
       Mat reco_output =
-          recoObject(img_input, col_hists, col_hists_object, colors);
+          recoObject(img_input, all_col_hists, colors);
 
       cvtColor(gray, img_input, COLOR_GRAY2BGR);
       output = 0.5 * reco_output + 0.5 * img_input; // mélange reco + caméra
